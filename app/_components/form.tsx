@@ -10,7 +10,7 @@ export const Form = () => {
     event.preventDefault() // Evita o comportamento padrão do submit
     console.log('Dados enviados:', inputValue) // Exibe o valor do input
     // Aqui você pode fazer algo com os dados, como enviar para uma API
-    const response = await WriteEdge()
+    const response = await WriteEdge({ text: inputValue })
     console.log('response :', response)
   }
 

@@ -1,9 +1,15 @@
 'use server'
 
-export const WriteEdge = async () => {
+import { revalidatePath } from 'next/cache'
+
+type Values = {
+  text: string
+}
+
+export const WriteEdge = async ({ text }: Values) => {
   try {
     const updateEdgeConfig = await fetch(
-      `https://api.vercel.com/v1/edge-config/${process.env.EDGE_CONFIG_ID}/items`,
+      `https://api.vercel.com/v1/edge-config/${process.env.EDGE_CONFIG_ID}/items?teamId=${process.env.TEAM_ID}`,
       {
         method: 'PATCH',
         headers: {
@@ -13,14 +19,9 @@ export const WriteEdge = async () => {
         body: JSON.stringify({
           items: [
             {
-              operation: 'create',
-              key: 'example_key_1',
-              value: 'example_value_1'
-            },
-            {
-              operation: 'update',
-              key: 'example_key_2',
-              value: 'new_value'
+              operation: 'upsert',
+              key: 'greeting',
+              value: text
             }
           ]
         })
@@ -28,6 +29,7 @@ export const WriteEdge = async () => {
     )
     const result = await updateEdgeConfig.json()
     console.log(result)
+    revalidatePath('/', 'page')
     return { ok: true }
   } catch (error) {
     console.log(error)
